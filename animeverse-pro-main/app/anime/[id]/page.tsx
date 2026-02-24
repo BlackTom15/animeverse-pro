@@ -1,38 +1,22 @@
-"use client";
+async function getAnime(id: string) {
+  const res = await fetch(
+    `https://api.jikan.moe/v4/anime/${id}`,
+    { cache: "no-store" }
+  );
+  const data = await res.json();
+  return data.data;
+}
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import axios from "axios";
-import Link from "next/link";
-
-export default function AnimeDetail() {
-  const { id } = useParams();
-  const [anime, setAnime] = useState<any>(null);
-
-  useEffect(() => {
-    if (id) {
-      axios
-        .get(`https://api.jikan.moe/v4/anime/${id}`)
-        .then((res) => setAnime(res.data.data))
-        .catch((err) => console.error(err));
-    }
-  }, [id]);
-
-  if (!anime) {
-    return (
-      <div className="min-h-screen bg-black text-white flex justify-center items-center">
-        Loading...
-      </div>
-    );
-  }
+export default async function AnimeDetail({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const anime = await getAnime(params.id);
 
   return (
-    <main className="min-h-screen bg-black text-white p-10">
-      <Link href="/" className="text-purple-400 underline">
-        ⬅ Back to Home
-      </Link>
-
-      <div className="grid md:grid-cols-2 gap-10 mt-6">
+    <main className="bg-black min-h-screen text-white p-6">
+      <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10">
         <img
           src={anime.images.jpg.image_url}
           alt={anime.title}
@@ -40,15 +24,29 @@ export default function AnimeDetail() {
         />
 
         <div>
-          <h1 className="text-4xl font-bold mb-4">{anime.title}</h1>
-          <p className="mb-2">⭐ Score: {anime.score}</p>
-          <p className="mb-2">📺 Episodes: {anime.episodes}</p>
-          <p className="mb-2">📅 Year: {anime.year}</p>
-          <p className="mb-2">
-            🎭 Genres:{" "}
-            {anime.genres?.map((g: any) => g.name).join(", ")}
+          <h1 className="text-4xl font-bold mb-4">
+            {anime.title}
+          </h1>
+
+          <p className="text-yellow-400 mb-2">
+            ⭐ Score: {anime.score ?? "N/A"}
           </p>
-          <p className="mt-4 text-gray-300">{anime.synopsis}</p>
+
+          <p className="text-gray-300 mb-4">
+            {anime.synopsis}
+          </p>
+
+          <p>
+            <strong>Episodes:</strong> {anime.episodes ?? "N/A"}
+          </p>
+
+          <p>
+            <strong>Status:</strong> {anime.status}
+          </p>
+
+          <p>
+            <strong>Year:</strong> {anime.year ?? "N/A"}
+          </p>
         </div>
       </div>
     </main>
