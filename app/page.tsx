@@ -6,6 +6,7 @@ import axios from "axios";
 export default function Home() {
   const [anime, setAnime] = useState<any[]>([]);
   const [search, setSearch] = useState("");
+  const [yearFilter, setYearFilter] = useState("All");
 
   useEffect(() => {
     axios
@@ -16,9 +17,17 @@ export default function Home() {
       .catch((err) => console.error(err));
   }, []);
 
-  const filteredAnime = anime.filter((a) =>
-    a.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredAnime = anime.filter((a) => {
+    const matchesSearch = a.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesYear =
+      yearFilter === "All" ||
+      String(a.year) === yearFilter;
+
+    return matchesSearch && matchesYear;
+  });
 
   return (
     <main className="min-h-screen bg-black text-white p-10">
@@ -26,8 +35,8 @@ export default function Home() {
         🎌 AnimeVerse Pro
       </h1>
 
-      {/* 🔎 Search Bar */}
-      <div className="flex justify-center mb-10">
+      {/* Search Bar */}
+      <div className="flex justify-center mb-6">
         <input
           type="text"
           placeholder="Search Anime..."
@@ -37,6 +46,24 @@ export default function Home() {
         />
       </div>
 
+      {/* Year Filter */}
+      <div className="flex justify-center gap-4 mb-10">
+        {["All", "2024", "2023", "2022"].map((year) => (
+          <button
+            key={year}
+            onClick={() => setYearFilter(year)}
+            className={`px-4 py-2 rounded-lg ${
+              yearFilter === year
+                ? "bg-purple-600"
+                : "bg-gray-700 hover:bg-gray-600"
+            }`}
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+
+      {/* Anime Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {filteredAnime.map((a) => (
           <div
