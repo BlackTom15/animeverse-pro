@@ -11,7 +11,7 @@ async function getAnime(id: string) {
 }
 
 export default async function AnimeDetail(props: any) {
-  const { id } = await props.params;   // 🔥 THIS IS THE FIX
+  const { id } = await props.params;
 
   const anime = await getAnime(id);
 
@@ -46,18 +46,15 @@ export default async function AnimeDetail(props: any) {
           </p>
 
           <p>
-            <strong>Episodes:</strong>{" "}
-            {anime.episodes ?? "N/A"}
+            <strong>Episodes:</strong> {anime.episodes ?? "N/A"}
           </p>
 
           <p>
-            <strong>Status:</strong>{" "}
-            {anime.status ?? "N/A"}
+            <strong>Status:</strong> {anime.status ?? "N/A"}
           </p>
 
           <p>
-            <strong>Year:</strong>{" "}
-            {anime.year ?? "N/A"}
+            <strong>Year:</strong> {anime.year ?? "N/A"}
           </p>
         </div>
       </div>
