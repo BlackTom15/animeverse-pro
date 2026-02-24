@@ -33,7 +33,7 @@ export default function Home() {
           placeholder="Search Anime..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:w-1/2 p-3 rounded-lg text-black"
+          className="w-full md:w-1/2 p-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400"
         />
       </div>
 
