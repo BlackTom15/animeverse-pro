@@ -7,27 +7,52 @@ export default function Home() {
   const [anime, setAnime] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [yearFilter, setYearFilter] = useState("All");
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  const fetchAnime = async (pageNumber: number) => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        `https://api.jikan.moe/v4/top/anime?page=${pageNumber}&limit=25`
+      );
+      setAnime((prev) => [...prev, ...res.data.data]);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    axios
-      .get("https://api.jikan.moe/v4/top/anime")
-      .then((res) => {
-        setAnime(res.data.data.slice(0, 20));
-      })
-      .catch((err) => console.error(err));
-  }, []);
+    fetchAnime(page);
+  }, [page]);
 
   const filteredAnime = anime.filter((a) => {
     const matchesSearch = a.title
       .toLowerCase()
       .includes(search.toLowerCase());
 
+    const year = a.year || a.aired?.prop?.from?.year;
+
     const matchesYear =
-      yearFilter === "All" ||
-      String(a.year) === yearFilter;
+      yearFilter === "All" || String(year) === yearFilter;
 
     return matchesSearch && matchesYear;
   });
+
+  const years = [
+    "All",
+    "2024",
+    "2023",
+    "2022",
+    "2021",
+    "2020",
+    "2019",
+    "2018",
+    "2017",
+    "2016",
+  ];
 
   return (
     <main className="min-h-screen bg-black text-white p-10">
@@ -35,7 +60,7 @@ export default function Home() {
         🎌 AnimeVerse Pro
       </h1>
 
-      {/* Search Bar */}
+      {/* Search */}
       <div className="flex justify-center mb-6">
         <input
           type="text"
@@ -47,8 +72,8 @@ export default function Home() {
       </div>
 
       {/* Year Filter */}
-      <div className="flex justify-center gap-4 mb-10">
-        {["All", "2024", "2023", "2022"].map((year) => (
+      <div className="flex justify-center flex-wrap gap-3 mb-10">
+        {years.map((year) => (
           <button
             key={year}
             onClick={() => setYearFilter(year)}
@@ -65,21 +90,35 @@ export default function Home() {
 
       {/* Anime Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {filteredAnime.map((a) => (
-          <div
-            key={a.mal_id}
-            className="bg-gray-900 p-4 rounded-xl shadow-lg hover:scale-105 transition"
-          >
-            <img
-              src={a.images.jpg.image_url}
-              alt={a.title}
-              className="rounded-lg mb-3"
-            />
-            <h2 className="text-lg font-semibold">{a.title}</h2>
-            <p>⭐ Score: {a.score}</p>
-            <p>📅 Year: {a.year || "N/A"}</p>
-          </div>
-        ))}
+        {filteredAnime.map((a) => {
+          const year = a.year || a.aired?.prop?.from?.year;
+          return (
+            <div
+              key={a.mal_id}
+              className="bg-gray-900 p-4 rounded-xl shadow-lg hover:scale-105 transition"
+            >
+              <img
+                src={a.images.jpg.image_url}
+                alt={a.title}
+                className="rounded-lg mb-3"
+              />
+              <h2 className="text-lg font-semibold">{a.title}</h2>
+              <p>⭐ Score: {a.score || "N/A"}</p>
+              <p>📅 Year: {year || "N/A"}</p>
+              <p>📺 Status: {a.status}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Load More */}
+      <div className="flex justify-center mt-10">
+        <button
+          onClick={() => setPage(page + 1)}
+          className="px-6 py-3 bg-purple-600 rounded-lg hover:bg-purple-700"
+        >
+          {loading ? "Loading..." : "Load More"}
+        </button>
       </div>
     </main>
   );
