@@ -5,24 +5,40 @@ import axios from "axios";
 
 export default function Home() {
   const [anime, setAnime] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     axios
       .get("https://api.jikan.moe/v4/top/anime")
       .then((res) => {
-        setAnime(res.data.data.slice(0, 12));
+        setAnime(res.data.data.slice(0, 20));
       })
       .catch((err) => console.error(err));
   }, []);
 
+  const filteredAnime = anime.filter((a) =>
+    a.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <main className="min-h-screen bg-black text-white p-10">
-      <h1 className="text-4xl font-bold text-center mb-10">
+      <h1 className="text-4xl font-bold text-center mb-6">
         🎌 AnimeVerse Pro
       </h1>
 
+      {/* 🔎 Search Bar */}
+      <div className="flex justify-center mb-10">
+        <input
+          type="text"
+          placeholder="Search Anime..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full md:w-1/2 p-3 rounded-lg text-black"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {anime.map((a) => (
+        {filteredAnime.map((a) => (
           <div
             key={a.mal_id}
             className="bg-gray-900 p-4 rounded-xl shadow-lg hover:scale-105 transition"
