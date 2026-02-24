@@ -13,7 +13,17 @@ export default function Home() {
       `https://api.jikan.moe/v4/top/anime?page=${page}`
     );
     const data = await res.json();
-    setAnime((prev) => [...prev, ...data.data]);
+    setAnime((prev) => {
+  const combined = [...prev, ...data.data];
+
+  const unique = combined.filter(
+    (item, index, self) =>
+      index ===
+      self.findIndex((t) => t.mal_id === item.mal_id)
+  );
+
+  return unique;
+});
   };
 
   const searchAnime = async (query: string) => {
@@ -63,7 +73,7 @@ export default function Home() {
       {/* GRID */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {anime.map((a) => (
-          <Link key={a.mal_id} href={`/anime/${a.mal_id}`}>
+          <Link key={`${a.mal_id}-${index}`} href={`/anime/${a.mal_id}`}>
             <div className="bg-gray-900 rounded-xl overflow-hidden hover:scale-105 transition cursor-pointer">
               <img
                 src={a.images?.jpg?.image_url}
