@@ -5,6 +5,7 @@ import axios from "axios";
 
 export default function Home() {
   const [anime, setAnime] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
   const [search, setSearch] = useState("");
   const [yearFilter, setYearFilter] = useState("All");
   const [page, setPage] = useState(1);
@@ -27,6 +28,23 @@ export default function Home() {
   useEffect(() => {
     fetchAnime(page);
   }, [page]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("favorites");
+    if (stored) setFavorites(JSON.parse(stored));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
+
+  const toggleFavorite = (id: number) => {
+    if (favorites.includes(id)) {
+      setFavorites(favorites.filter((fav) => fav !== id));
+    } else {
+      setFavorites([...favorites, id]);
+    }
+  };
 
   const filteredAnime = anime.filter((a) => {
     const matchesSearch = a.title
@@ -52,6 +70,12 @@ export default function Home() {
     "2018",
     "2017",
     "2016",
+    "2015",
+    "2014",
+    "2013",
+    "2012",
+    "2011",
+    "2010",
   ];
 
   return (
@@ -67,7 +91,7 @@ export default function Home() {
           placeholder="Search Anime..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:w-1/2 p-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400"
+          className="w-full md:w-1/2 p-3 rounded-xl bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
       </div>
 
@@ -92,11 +116,20 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {filteredAnime.map((a) => {
           const year = a.year || a.aired?.prop?.from?.year;
+          const isFav = favorites.includes(a.mal_id);
+
           return (
             <div
               key={a.mal_id}
-              className="bg-gray-900 p-4 rounded-xl shadow-lg hover:scale-105 transition"
+              className="bg-gray-900 p-4 rounded-xl shadow-lg hover:scale-105 transition relative"
             >
+              <button
+                onClick={() => toggleFavorite(a.mal_id)}
+                className="absolute top-3 right-3 text-xl"
+              >
+                {isFav ? "❤️" : "🤍"}
+              </button>
+
               <img
                 src={a.images.jpg.image_url}
                 alt={a.title}
